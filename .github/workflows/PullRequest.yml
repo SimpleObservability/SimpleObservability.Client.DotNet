@@ -4,6 +4,8 @@ on: pull_request
 
 env:
   DOTNET_NOLOGO: true
+  LOWEST_FRAMEWORK: net8.0
+  HIGHEST_FRAMEWORK: net10.0
 
 jobs:
 
@@ -31,7 +33,7 @@ jobs:
       - run: dotnet build --configuration Debug /p:ContinuousIntegrationBuild=true
 
       - name: Run tests with code coverage
-        run: dotnet run --project ./code/WorldDomination.SimpleObservability.Tests/WorldDomination.SimpleObservability.Tests.csproj --configuration Debug --no-build --framework net8.0 -- --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
+        run: dotnet run --project ./code/WorldDomination.SimpleObservability.Tests/WorldDomination.SimpleObservability.Tests.csproj --configuration Debug --no-build --framework ${{ env.HIGHEST_FRAMEWORK }} -- --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
 
       - name: Code coverage
         uses: codecov/codecov-action@v5
@@ -75,11 +77,11 @@ jobs:
         run: dotnet run --project ./code/WorldDomination.SimpleObservability.Tests/WorldDomination.SimpleObservability.Tests.csproj --configuration Release --no-build --framework ${{ matrix.framework }}
 
       - run: dotnet pack --configuration Release --no-build --output ./artifacts -p:DebugType=Embedded -p:VersionPrefix=$VERSION_PREFIX --version-suffix $VERSION_SUFFIX
-        if: matrix.framework == 'net8.0'
+        if: matrix.framework == env.LOWEST_FRAMEWORK
 
       - name: Publish artifacts
         uses: actions/upload-artifact@v5
-        if: matrix.framework == 'net8.0'
+        if: matrix.framework == env.LOWEST_FRAMEWORK
         with:
           name: NuGetPackage.${{ env.VERSION_PREFIX }}-${{ env.VERSION_SUFFIX }}
           path: ./artifacts/
