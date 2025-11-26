@@ -5,6 +5,8 @@ namespace WorldDomination.SimpleObservability;
 /// </summary>
 public record DashboardConfiguration
 {
+    private List<string>? _cachedEnvironments;
+
     /// <summary>
     /// List of services to monitor. Each service will appear as a column in the dashboard. Required.
     /// The environments are automatically derived from the unique environment values in the services list.
@@ -38,24 +40,36 @@ public record DashboardConfiguration
     {
         get
         {
+            if (_cachedEnvironments is not null)
+            {
+                return _cachedEnvironments;
+            }
+
             var allEnvironments = Services
                 .Select(s => s.Environment)
-                .Distinct()
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
             if (EnvironmentOrder is null || EnvironmentOrder.Count == 0)
             {
-                // No custom order specified, return alphabetically sorted.
-                return allEnvironments.OrderBy(e => e).ToList();
+                _cachedEnvironments = allEnvironments
+                    .OrderBy(e => e, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+                return _cachedEnvironments;
             }
 
-            // Separate environments into ordered and unordered groups.
-            var orderedEnvironments = new List<string>();
+            var orderedEnvironments = new List<string>(EnvironmentOrder.Count);
             var unorderedEnvironments = new List<string>();
+
+            var orderLookup = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < EnvironmentOrder.Count; i++)
+            {
+                orderLookup[EnvironmentOrder[i]] = i;
+            }
 
             foreach (var env in allEnvironments)
             {
-                if (EnvironmentOrder.Contains(env))
+                if (orderLookup.ContainsKey(env))
                 {
                     orderedEnvironments.Add(env);
                 }
@@ -65,18 +79,14 @@ public record DashboardConfiguration
                 }
             }
 
-            // Sort ordered environments by their position in EnvironmentOrder.
-            orderedEnvironments = orderedEnvironments
-                .OrderBy(e => EnvironmentOrder.IndexOf(e))
-                .ToList();
+            orderedEnvironments.Sort((a, b) => orderLookup[a].CompareTo(orderLookup[b]));
+            unorderedEnvironments.Sort(StringComparer.OrdinalIgnoreCase);
 
-            // Sort unordered environments alphabetically.
-            unorderedEnvironments = unorderedEnvironments
-                .OrderBy(e => e)
-                .ToList();
+            _cachedEnvironments = new List<string>(orderedEnvironments.Count + unorderedEnvironments.Count);
+            _cachedEnvironments.AddRange(orderedEnvironments);
+            _cachedEnvironments.AddRange(unorderedEnvironments);
 
-            // Combine: ordered first, then unordered.
-            return orderedEnvironments.Concat(unorderedEnvironments).ToList();
+            return _cachedEnvironments;
         }
     }
 }

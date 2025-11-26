@@ -290,4 +290,72 @@ public class DashboardConfigurationTests
         // Assert.
         areEqual.ShouldBeTrue();
     }
+
+    [Fact]
+    public void Environments_WhenAccessedMultipleTimes_ShouldReturnCachedInstance()
+    {
+        // Arrange.
+        var config = new DashboardConfiguration
+        {
+            Services = new List<ServiceEndpoint>
+            {
+                new() { Name = "Service 1", Environment = "PROD", HealthCheckUrl = "http://localhost:5001" },
+                new() { Name = "Service 2", Environment = "DEV", HealthCheckUrl = "http://localhost:5002" },
+                new() { Name = "Service 3", Environment = "UAT", HealthCheckUrl = "http://localhost:5003" }
+            }
+        };
+
+        // Act.
+        var environments1 = config.Environments;
+        var environments2 = config.Environments;
+
+        // Assert.
+        ReferenceEquals(environments1, environments2).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Environments_WithCaseInsensitiveDuplicates_ShouldReturnUniqueOnly()
+    {
+        // Arrange.
+        var config = new DashboardConfiguration
+        {
+            Services = new List<ServiceEndpoint>
+            {
+                new() { Name = "Service 1", Environment = "dev", HealthCheckUrl = "http://localhost:5001" },
+                new() { Name = "Service 2", Environment = "DEV", HealthCheckUrl = "http://localhost:5002" },
+                new() { Name = "Service 3", Environment = "Dev", HealthCheckUrl = "http://localhost:5003" }
+            }
+        };
+
+        // Act.
+        var environments = config.Environments;
+
+        // Assert.
+        environments.Count.ShouldBe(1);
+    }
+
+    [Fact]
+    public void Environments_WithCaseInsensitiveEnvironmentOrder_ShouldMatchCorrectly()
+    {
+        // Arrange.
+        var config = new DashboardConfiguration
+        {
+            Services = new List<ServiceEndpoint>
+            {
+                new() { Name = "Service 1", Environment = "PROD", HealthCheckUrl = "http://localhost:5001" },
+                new() { Name = "Service 2", Environment = "dev", HealthCheckUrl = "http://localhost:5002" },
+                new() { Name = "Service 3", Environment = "UAT", HealthCheckUrl = "http://localhost:5003" }
+            },
+            EnvironmentOrder = new List<string> { "prod", "uat", "DEV" }
+        };
+
+        // Act.
+        var environments = config.Environments;
+
+        // Assert.
+        environments.Count.ShouldBe(3);
+        environments[0].ShouldBe("PROD");
+        environments[1].ShouldBe("UAT");
+        environments[2].ShouldBe("dev");
+    }
 }
