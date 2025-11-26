@@ -75,7 +75,7 @@ jobs:
       - run: dotnet build --configuration Debug
 
       - name: Run tests with code coverage
-        run: dotnet run --project ./code/WorldDomination.SimpleObservability.Tests/WorldDomination.SimpleObservability.Tests.csproj --configuration Debug --no-build --framework net8.0 -- --coverage --coverage-output-format cobertura --coverage-output ./coverage.cobertura.xml
+        run: dotnet run --project ./code/WorldDomination.SimpleObservability.Tests/WorldDomination.SimpleObservability.Tests.csproj --configuration Debug --no-build --framework net8.0 -- --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
 
       - name: Code coverage
         uses: codecov/codecov-action@v5
