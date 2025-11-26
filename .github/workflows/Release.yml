@@ -19,8 +19,8 @@ env:
   DOTNET_NOLOGO: true
 
 jobs:
-  build_and_create_a_nuget_publish:
-    name: Build, Create a NuGet and Publish
+  build_and_create_a_nuget:
+    name: Build and Create a NuGet
     runs-on: ubuntu-latest
 
     steps:
@@ -33,6 +33,14 @@ jobs:
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
       - run: dotnet restore --verbosity minimal
 
@@ -54,12 +62,42 @@ jobs:
           name: NuGetPackage.${{ env.RELEASE_VERSION }}
           files: ./artifacts/*
 
+  publish_to_gpr:
+    name: Publish to GitHub Package Registry
+    runs-on: ubuntu-latest
+    needs: build_and_create_a_nuget
+
+    steps:
+      - name: Calculate version from the Commit Tag
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: NuGetPackage.${{ env.RELEASE_VERSION }}
+          path: ./artifacts/
+
       - name: Publish to GPR
         run: |
           dotnet nuget push "./artifacts/*.nupkg" \
             --no-symbols \
             --api-key ${{ secrets.GITHUB_TOKEN }} \
             --source https://nuget.pkg.github.com/${{ github.repository_owner }}
+
+  publish_to_nuget:
+    name: Publish to NuGet.org
+    runs-on: ubuntu-latest
+    needs: build_and_create_a_nuget
+
+    steps:
+      - name: Calculate version from the Commit Tag
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: NuGetPackage.${{ env.RELEASE_VERSION }}
+          path: ./artifacts/
 
       - name: Publish to nuget.org
         run: |
