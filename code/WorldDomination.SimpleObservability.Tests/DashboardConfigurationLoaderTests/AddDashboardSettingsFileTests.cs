@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace WorldDomination.SimpleObservability.Tests;
+namespace WorldDomination.SimpleObservability.Tests.DashboardConfigurationLoaderTests;
 
 /// <summary>
 /// Tests for the <see cref="DashboardConfigurationLoader.AddDashboardSettingsFile"/> method.

@@ -36,12 +36,7 @@ public static class DashboardConfigurationLoader
     /// <returns>A default dashboard configuration with no services.</returns>
     public static DashboardConfiguration CreateDefaultConfiguration()
     {
-        return new DashboardConfiguration
-        {
-            Services = [],
-            RefreshIntervalSeconds = 30,
-            TimeoutSeconds = 5
-        };
+        return new DashboardConfiguration();
     }
 
     /// <summary>

@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Configuration;
 
-namespace WorldDomination.SimpleObservability.Tests;
+namespace WorldDomination.SimpleObservability.Tests.DashboardConfigurationLoaderTests;
 
 /// <summary>
 /// Tests for the <see cref="DashboardConfigurationLoader"/> class.
 /// </summary>
-public class DashboardConfigurationLoaderTests
+public class LoadTests
 {
     [Fact]
     public void Load_WithNullConfiguration_ShouldThrowArgumentNullException()
@@ -183,32 +183,5 @@ public class DashboardConfigurationLoaderTests
 
         // Assert.
         config.Services[0].Enabled.ShouldBeFalse();
-    }
-
-    [Fact]
-    public void CreateDefaultConfiguration_ShouldReturnValidDefaultConfiguration()
-    {
-        // Arrange.
-        // Act.
-        var config = DashboardConfigurationLoader.CreateDefaultConfiguration();
-
-        // Assert.
-        config.ShouldNotBeNull();
-        config.Services.ShouldNotBeNull();
-        config.Services.ShouldBeEmpty();
-        config.RefreshIntervalSeconds.ShouldBe(30);
-        config.TimeoutSeconds.ShouldBe(5);
-        config.EnvironmentOrder.ShouldBeNull();
-    }
-
-    [Fact]
-    public void DefaultSectionName_ShouldBeDashboard()
-    {
-        // Arrange.
-        // Act.
-        var sectionName = DashboardConfigurationLoader.DefaultSectionName;
-
-        // Assert.
-        sectionName.ShouldBe("Dashboard");
     }
 }

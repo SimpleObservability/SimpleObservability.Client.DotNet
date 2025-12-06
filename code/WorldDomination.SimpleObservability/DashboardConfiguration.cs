@@ -6,12 +6,17 @@ namespace WorldDomination.SimpleObservability;
 public record DashboardConfiguration
 {
     private List<string>? _cachedEnvironments;
+    private List<ServiceEndpoint>? _services;
 
     /// <summary>
     /// List of services to monitor. Each service will appear as a column in the dashboard. Required.
     /// The environments are automatically derived from the unique environment values in the services list.
     /// </summary>
-    public required List<ServiceEndpoint> Services { get; init; }
+    public List<ServiceEndpoint> Services
+    {
+        get => _services ??= [];
+        init => _services = value;
+    }
 
     /// <summary>
     /// The interval (in seconds) at which the dashboard should refresh health data. Optional, defaults to 30 seconds.
