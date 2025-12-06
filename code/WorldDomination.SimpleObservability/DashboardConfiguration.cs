@@ -82,9 +82,7 @@ public record DashboardConfiguration
             orderedEnvironments.Sort((a, b) => orderLookup[a].CompareTo(orderLookup[b]));
             unorderedEnvironments.Sort(StringComparer.OrdinalIgnoreCase);
 
-            _cachedEnvironments = new List<string>(orderedEnvironments.Count + unorderedEnvironments.Count);
-            _cachedEnvironments.AddRange(orderedEnvironments);
-            _cachedEnvironments.AddRange(unorderedEnvironments);
+            _cachedEnvironments = [.. orderedEnvironments, .. unorderedEnvironments];
 
             return _cachedEnvironments;
         }

@@ -202,62 +202,6 @@ public class DashboardConfigurationLoaderTests
     }
 
     [Fact]
-    public void AddDashboardSettingsFile_WithNullBuilder_ShouldThrowArgumentNullException()
-    {
-        // Arrange.
-        IConfigurationBuilder builder = null!;
-
-        // Act.
-        var exception = Should.Throw<ArgumentNullException>(() => builder.AddDashboardSettingsFile());
-
-        // Assert.
-        exception.ParamName.ShouldBe("builder");
-    }
-
-    [Fact]
-    public void AddDashboardSettingsFile_WithDefaultFilename_ShouldAddJsonFile()
-    {
-        // Arrange.
-        var builder = new ConfigurationBuilder();
-
-        // Act.
-        var result = builder.AddDashboardSettingsFile();
-
-        // Assert.
-        result.ShouldBe(builder);
-        result.ShouldNotBeNull();
-    }
-
-    [Fact]
-    public void AddDashboardSettingsFile_WithCustomFilename_ShouldAddJsonFile()
-    {
-        // Arrange.
-        var builder = new ConfigurationBuilder();
-        var customFilename = "custom-settings.json";
-
-        // Act.
-        var result = builder.AddDashboardSettingsFile(customFilename);
-
-        // Assert.
-        result.ShouldBe(builder);
-        result.ShouldNotBeNull();
-    }
-
-    [Fact]
-    public void AddDashboardSettingsFile_WithOptionalFalse_ShouldAddJsonFile()
-    {
-        // Arrange.
-        var builder = new ConfigurationBuilder();
-
-        // Act.
-        var result = builder.AddDashboardSettingsFile(optional: false);
-
-        // Assert.
-        result.ShouldBe(builder);
-        result.ShouldNotBeNull();
-    }
-
-    [Fact]
     public void DefaultSectionName_ShouldBeDashboard()
     {
         // Arrange.

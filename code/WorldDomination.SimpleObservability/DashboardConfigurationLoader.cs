@@ -38,7 +38,7 @@ public static class DashboardConfigurationLoader
     {
         return new DashboardConfiguration
         {
-            Services = new List<ServiceEndpoint>(),
+            Services = [],
             RefreshIntervalSeconds = 30,
             TimeoutSeconds = 5
         };
@@ -46,20 +46,34 @@ public static class DashboardConfigurationLoader
 
     /// <summary>
     /// Adds an optional dashboard settings JSON file to the configuration builder.
+    /// Optionally loads environment-specific configuration file (e.g., dashboardsettings.Development.json).
     /// </summary>
     /// <param name="builder">The configuration builder.</param>
     /// <param name="filename">The filename to load (default: "dashboardsettings.json").</param>
     /// <param name="optional">Whether the file is optional (default: true).</param>
     /// <param name="reloadOnChange">Whether to reload the configuration when the file changes (default: true).</param>
+    /// <param name="environmentName">Optional environment name (e.g., "Development", "Production"). If provided, also loads {filename}.{environment}.json.</param>
     /// <returns>The configuration builder for chaining.</returns>
     public static IConfigurationBuilder AddDashboardSettingsFile(
         this IConfigurationBuilder builder,
         string filename = "dashboardsettings.json",
         bool optional = true,
-        bool reloadOnChange = true)
+        bool reloadOnChange = true,
+        string? environmentName = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        return builder.AddJsonFile(filename, optional: optional, reloadOnChange: reloadOnChange);
+        builder.AddJsonFile(filename, optional: optional, reloadOnChange: reloadOnChange);
+
+        if (!string.IsNullOrWhiteSpace(environmentName))
+        {
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filename);
+            var extension = Path.GetExtension(filename);
+            var environmentSpecificFilename = $"{fileNameWithoutExtension}.{environmentName}{extension}";
+
+            builder.AddJsonFile(environmentSpecificFilename, optional: true, reloadOnChange: reloadOnChange);
+        }
+
+        return builder;
     }
 }
